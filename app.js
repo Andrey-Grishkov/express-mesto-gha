@@ -15,17 +15,16 @@ const app = express();
 
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json());
-
+app.use((req, res, next) => {
+  req.user = {
+    _id: '6317940a2d8e6841293050e8'
+  };
+  next();
+});
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '631f96f4dad6cbda676962c2'
-  };
 
-  next();
-});
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен. Порт ${PORT}`)
