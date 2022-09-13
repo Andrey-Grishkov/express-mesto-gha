@@ -19,7 +19,14 @@ const getUserById = (req, res) => {
       }
       return res.send({ data: user });
     })
-    .catch(() => res.status(500).send({message:'Ошибка 500: Что-то пошло не так'}));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res
+          .status(404)
+          .send({ message: 'Ошибка 404: Пользователь не найден' });
+      }
+      res.status(500).send({message:'Ошибка 500: Что-то пошло не так'})
+    });
 };
 
 const createUser = (req, res) => {
