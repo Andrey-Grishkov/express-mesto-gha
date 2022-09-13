@@ -24,8 +24,6 @@ app.use((req, res, next) => {
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
 
-
-
 app.listen(PORT, () => {
   console.log(`Сервер запущен. Порт ${PORT}`)
 });
