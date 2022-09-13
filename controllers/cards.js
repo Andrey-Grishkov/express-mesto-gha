@@ -36,9 +36,7 @@ const createCard = (req, res) => {
 };
 
 const deleteCardById = (req, res) => {
-  const { cardId } = req.params;
-
-  Card.findByIdAndRemove(cardId)
+  Card.findByIdAndRemove(req.params)
     .then((card) => {
       if (card === null) {
         return res
@@ -50,7 +48,38 @@ const deleteCardById = (req, res) => {
     .catch(() => res.status(500).send({message:'Ошибка 500: Что-то пошло не так'}));
 };
 
+const likeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+  ).then((card) => {
+    if (card === null) {
+      return res
+        .status(404)
+        .send({message:'Ошибка 404: Карточка не найдена'});
+    }
+    return res.send({ data: card });
+  })
+    .catch(() => res.status(500).send({message:'Ошибка 500: Что-то пошло не так'}));
+};
+
+const dislikeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  ).then((card) => {
+    if (card === null) {
+      return res
+        .status(404)
+        .send({message:'Ошибка 404: Карточка не найдена'});
+    }
+    return res.send({ data: card });
+  })
+    .catch(() => res.status(500).send({message:'Ошибка 500: Что-то пошло не так'}));
+};
 
 module.exports = {
-  getCards, createCard, deleteCardById
+  getCards, createCard, deleteCardById, likeCard, dislikeCard
 }
