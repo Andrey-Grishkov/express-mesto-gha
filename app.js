@@ -6,27 +6,27 @@ const routerCards = require('./routes/cards');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
-  useUnifiedTopology:true,
+  useUnifiedTopology: true,
 });
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
 
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use((req, res, next) => {
   req.user = {
-    _id: '6317940a2d8e6841293050e8'
+    _id: '6317940a2d8e6841293050e8',
   };
   next();
 });
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
-
-app.listen(PORT, () => {
-  console.log(`Сервер запущен. Порт ${PORT}`)
+app.use((req, res) => {
+  res.status(404).send({ message: 'Ошибка 404: Страница отсутствует' });
 });
 
-
-
+app.listen(PORT, () => {
+  console.log(`Сервер запущен. Порт ${PORT}`);
+});
