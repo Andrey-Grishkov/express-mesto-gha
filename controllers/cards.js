@@ -25,15 +25,14 @@ const createCard = (req, res) => {
 };
 
 const deleteCardById = (req, res) => {
-  Card.findById(req.params)
+  Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (card === null || undefined) {
         return res
           .status(404)
           .send({ message: 'Ошибка 404: Карточка не найдена' });
       }
-      Card.deleteOne(card).then((card) => {
-      return res.status(200).send(card);})
+      return res.status(200).send(card);
     })
     .catch((err) => {
        if (err.name === 'CastError') {
