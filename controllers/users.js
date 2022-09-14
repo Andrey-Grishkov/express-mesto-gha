@@ -9,7 +9,7 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
   User.findById(req.params)
     .then((user) => {
-      if (user === null) {
+      if (user === null || undefined) {
         return res
           .status(404)
           .send({ message: 'Ошибка 404: Пользователь не найден' });
@@ -17,14 +17,10 @@ const getUserById = (req, res) => {
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+       if (err.name === 'CastError') {
         return res
           .status(400)
-          .send({ message: 'Ошибка 400: Некорректный id пользователя' });
-      } if (err.name === 'CastError') {
-        return res
-          .status(404)
-          .send({ message: 'Ошибка 404: id пользователя отсутствует' });
+          .send({ message: 'Ошибка 400: id пользователя отсутствует' });
       }
       return res.status(500).send({ message: 'Ошибка 500: Что-то пошло не так' });
     });

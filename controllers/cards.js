@@ -27,21 +27,19 @@ const createCard = (req, res) => {
 const deleteCardById = (req, res) => {
   Card.findById(req.params)
     .then((card) => {
-      if (card === null) {
+      if (card === null || undefined) {
         return res
           .status(404)
           .send({ message: 'Ошибка 404: Карточка не найдена' });
       }
       Card.deleteOne(card).then((card) => {
-      return res.status(200).send({ data: card });})
+      return res.status(200).send(card);})
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Ошибка 400: Некорректный id карточки' });
-      } if (err.name === 'CastError') {
+       if (err.name === 'CastError') {
         return res
-          .status(404)
-          .send({ message: 'Ошибка 404: id карточки отсутствует' });
+          .status(400)
+          .send({ message: 'Ошибка 400: id карточки отсутствует' });
       }
       return res.status(500).send({ message: 'Ошибка 500: Что-то пошло не так' });
     });
