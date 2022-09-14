@@ -17,7 +17,7 @@ const getUserById = (req, res) => {
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
-       if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         return res
           .status(400)
           .send({ message: 'Ошибка 400: id пользователя отсутствует' });
