@@ -14,13 +14,17 @@ const getUserById = (req, res) => {
           .status(404)
           .send({ message: 'Ошибка 404: Пользователь не найден' });
       }
-      return res.send({ data: user });
+      return res.status(200).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         return res
           .status(400)
           .send({ message: 'Ошибка 400: Некорректный id пользователя' });
+      } if (err.name === 'CastError') {
+        return res
+          .status(404)
+          .send({ message: 'Ошибка 404: id пользователя отсутствует' });
       }
       return res.status(500).send({ message: 'Ошибка 500: Что-то пошло не так' });
     });

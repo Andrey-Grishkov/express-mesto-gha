@@ -75,7 +75,7 @@ const dislikeCard = (req, res) => {
         .status(404)
         .send({ message: 'Ошибка 404: Карточка не найдена' });
     }
-    return res.send({ data: card });
+    return res.status(200).send({ data: card });
   })
     .catch((err) => {
       if (err.name === 'CastError') {
