@@ -1,28 +1,31 @@
 const User = require('../models/user');
+const {
+  err500, err400, err404, ok200,
+} = require('../utils/errorsCodes');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((user) => { res.send({ data: user }); })
-    .catch(() => res.status(500).send({ message: 'Ошибка 500: Что-то пошло не так' }));
+    .catch(() => res.status(err500).send({ message: 'Ошибка 500: Что-то пошло не так' }));
 };
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
-      if (user === null || undefined) {
+      if (!user) {
         return res
-          .status(404)
+          .status(err404)
           .send({ message: 'Ошибка 404: Пользователь не найден' });
       }
-      return res.status(200).send({ data: user });
+      return res.status(ok200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
-          .status(400)
-          .send({ message: 'Ошибка 400: id пользователя отсутствует' });
+          .status(err400)
+          .send({ message: 'Ошибка 400: Переданы некорректные данные' });
       }
-      return res.status(500).send({ message: 'Ошибка 500: Что-то пошло не так' });
+      return res.status(err500).send({ message: 'Ошибка 500: Что-то пошло не так' });
     });
 };
 
@@ -33,10 +36,10 @@ const createUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
-          .status(400)
+          .status(err400)
           .send({ message: 'Ошибка 400: Переданы некорректные данные' });
       }
-      return res.status(500).send({ message: 'Ошибка 500: Что-то пошло не так' });
+      return res.status(err500).send({ message: 'Ошибка 500: Что-то пошло не так' });
     });
 };
 
@@ -48,20 +51,20 @@ const updateUserProfile = (req, res) => {
     { new: true, runValidators: true },
   )
     .then((user) => {
-      if (user === null) {
+      if (!user) {
         return res
-          .status(404)
+          .status(err404)
           .send({ message: 'Ошибка 404: Пользователь не найден' });
       }
-      return res.status(200).send({ data: user });
+      return res.status(ok200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
-          .status(400)
+          .status(err400)
           .send({ message: 'Ошибка 400: Переданы некорректные данные' });
       }
-      return res.status(500).send({ message: 'Ошибка 500: Что-то пошло не так' });
+      return res.status(err500).send({ message: 'Ошибка 500: Что-то пошло не так' });
     });
 };
 
@@ -73,20 +76,20 @@ const updateUserAvatar = (req, res) => {
     { new: true, runValidators: true },
   )
     .then((user) => {
-      if (user === null) {
+      if (!user) {
         return res
-          .status(404)
+          .status(err404)
           .send({ message: 'Ошибка 404: Пользователь не найден' });
       }
-      return res.status(200).send({ data: user });
+      return res.status(ok200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
-          .status(400)
+          .status(err400)
           .send({ message: 'Ошибка 400: Переданы некорректные данные' });
       }
-      return res.status(500).send({ message: 'Ошибка 500: Что-то пошло не так' });
+      return res.status(err500).send({ message: 'Ошибка 500: Что-то пошло не так' });
     });
 };
 
