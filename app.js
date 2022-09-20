@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
+const {login, createUser} = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -15,14 +17,12 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6317940a2d8e6841293050e8',
-  };
-  next();
-});
-app.use('/users', routerUsers);
-app.use('/cards', routerCards);
+
+app.use(auth);
+app.post('/signin', login);
+app.post('/signup', createUser);
+app.use('/users', auth, routerUsers);
+app.use('/cards', auth, routerCards);
 app.use((req, res) => {
   res.status(404).send({ message: 'Ошибка 404: Страница отсутствует' });
 });

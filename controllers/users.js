@@ -1,7 +1,32 @@
 const User = require('../models/user');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
 const {
   err500, err400, err404, ok200,
 } = require('../utils/errorsCodes');
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key',
+        { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch((err) => {
+      res
+        .status(401)
+        .send({ message: err.message });
+    });
+};
+
+
+
+
+
+
 
 const getUsers = (req, res) => {
   User.find({})
@@ -30,8 +55,15 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  const { name, about, avatar, email, password, } = req.body;
+  bcrypt.hash(req.body.password, 10)
+    .then(hash => User.create({
+      email: req.body.email,
+      password: hash, // записываем хеш в базу
+    }))
+    .then((user) => res.send(user))
+    .catch((err) => res.status(400).send(err));
+User.create({ name, about, avatar, email, password, })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -93,6 +125,17 @@ const updateUserAvatar = (req, res) => {
     });
 };
 
+const getUserInfo = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError(`Пользователь с id: ${req.user._id} не найден`);
+      }
+      res.send({ message: user });
+    })
+    .catch(next);
+};
+
 module.exports = {
-  getUsers, getUserById, createUser, updateUserProfile, updateUserAvatar,
+  getUsers, getUserById, createUser, updateUserProfile, updateUserAvatar, login, getUserInfo,
 };
