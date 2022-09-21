@@ -1,12 +1,15 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
+const NotFoundError = require('../errors/NotFoundError');
 
 const {
-  err500, err400, err404, ok200,
+  ok200,
 } = require('../utils/errorsCodes');
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -15,67 +18,57 @@ const login = (req, res) => {
         { expiresIn: '7d' });
       res.send({ token });
     })
-    .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
-    });
+    .catch(next);
 };
 
-
-
-
-
-
-
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((user) => { res.send({ data: user }); })
-    .catch(() => res.status(err500).send({ message: 'Ошибка 500: Что-то пошло не так' }));
+    .catch(next);
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res
-          .status(err404)
-          .send({ message: 'Ошибка 404: Пользователь не найден' });
+        throw new NotFoundError('Ошибка 404: Пользователь не найден');
       }
       return res.status(ok200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(err400)
-          .send({ message: 'Ошибка 400: Переданы некорректные данные' });
+        next(new BadRequestError('Ошибка 400: Переданы некорректные данные'));
+        return
       }
-      return res.status(err500).send({ message: 'Ошибка 500: Что-то пошло не так' });
+      next(err);
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, about, avatar, email, password, } = req.body;
   bcrypt.hash(req.body.password, 10)
     .then(hash => User.create({
       email: req.body.email,
-      password: hash, // записываем хеш в базу
+      password: hash,
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
     }))
     .then((user) => res.send(user))
-    .catch((err) => res.status(400).send(err));
-User.create({ name, about, avatar, email, password, })
-    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res
-          .status(err400)
-          .send({ message: 'Ошибка 400: Переданы некорректные данные' });
+        next(new BadRequestError('Некорректные данные'));
+        return;
       }
-      return res.status(err500).send({ message: 'Ошибка 500: Что-то пошло не так' });
+      if (err.code === 11000) {
+        next(new ConflictError('Указанный email уже существует'));
+        return;
+      }
+      next(err);
     });
 };
 
-const updateUserProfile = (req, res) => {
+const updateUserProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -84,23 +77,20 @@ const updateUserProfile = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res
-          .status(err404)
-          .send({ message: 'Ошибка 404: Пользователь не найден' });
+        throw new NotFoundError('Ошибка 404: Пользователь не найден');
       }
       return res.status(ok200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res
-          .status(err400)
-          .send({ message: 'Ошибка 400: Переданы некорректные данные' });
+        next(new BadRequestError('Ошибка 400: Переданы некорректные данные'));
+        return
       }
-      return res.status(err500).send({ message: 'Ошибка 500: Что-то пошло не так' });
+      next(err);
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -109,19 +99,16 @@ const updateUserAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res
-          .status(err404)
-          .send({ message: 'Ошибка 404: Пользователь не найден' });
+        throw new NotFoundError('Ошибка 404: Пользователь не найден');
       }
       return res.status(ok200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res
-          .status(err400)
-          .send({ message: 'Ошибка 400: Переданы некорректные данные' });
+        next(new BadRequestError('Ошибка 400: Переданы некорректные данные'));
+        return
       }
-      return res.status(err500).send({ message: 'Ошибка 500: Что-то пошло не так' });
+      next(err);
     });
 };
 

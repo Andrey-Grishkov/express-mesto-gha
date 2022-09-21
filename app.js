@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
+const NotFoundError = require('./errors/NotFoundError');
 const {login, createUser} = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
@@ -23,8 +24,8 @@ app.post('/signin', login);
 app.post('/signup', createUser);
 app.use('/users', auth, routerUsers);
 app.use('/cards', auth, routerCards);
-app.use((req, res) => {
-  res.status(404).send({ message: 'Ошибка 404: Страница отсутствует' });
+app.use((req, res, next) => {
+  next(new NotFoundError('Ошибка 404: Страница отсутствует'));
 });
 
 app.listen(PORT, () => {
