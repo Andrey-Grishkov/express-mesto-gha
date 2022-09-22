@@ -8,6 +8,7 @@ const validator = require('validator');
 const { errors, celebrate, Joi } = require('celebrate');
 const {login, createUser} = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/errorHandler');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -44,21 +45,14 @@ app.post('/signup', celebrate({
 }), createUser);
 app.use('/users', auth, routerUsers);
 app.use('/cards', auth, routerCards);
+app.use(errorHandler);
+
 app.use(errors());
 app.use((req, res, next) => {
   next(new NotFoundError('Ошибка 404: Страница отсутствует'));
 });
 
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res.status(err.statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  next();
-});
+
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен. Порт ${PORT}`);
