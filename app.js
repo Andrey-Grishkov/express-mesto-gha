@@ -9,6 +9,7 @@ const { errors, celebrate, Joi } = require('celebrate');
 const {login, createUser} = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
+const cookieParser = require('cookie-parser');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -21,7 +22,7 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.use(cookieParser());
 app.use(auth);
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -45,9 +46,10 @@ app.post('/signup', celebrate({
 }), createUser);
 app.use('/users', auth, routerUsers);
 app.use('/cards', auth, routerCards);
-app.use(errorHandler);
+
 
 app.use(errors());
+// app.use(errorHandler);
 app.use((req, res, next) => {
   next(new NotFoundError('Ошибка 404: Страница отсутствует'));
 });
