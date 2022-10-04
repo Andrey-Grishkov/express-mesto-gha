@@ -4,23 +4,22 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports = (req, res, next) => {
-  const { authorization } = req.headers;
+  const token = req.cookies.jwt;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new UnauthorizedError('Неправильные почта или пароль');
+  if (!token) {
+    throw new UnauthorizedError();
   }
-
-  const token = authorization.replace('Bearer ', '');
 
   let payload;
 
   try {
-    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
+    payload = jwt.verify(token, 'top-secret');
   } catch (err) {
-    return res
-      .status(err401)
-      .send({ message: 'Необходима авторизация' });
+    throw new UnauthorizedError();
   }
+
   req.user = payload;
+
   next();
+  return null;
 };

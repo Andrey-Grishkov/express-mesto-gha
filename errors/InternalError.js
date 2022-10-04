@@ -8,6 +8,4 @@ class InternalError extends Error {
   }
 }
 
-module.exports = {
-  InternalError,
-};
+module.exports = InternalError;
