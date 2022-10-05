@@ -2,7 +2,7 @@ const { err401 } = require('../utils/errorsCodes');
 
 class UnauthorizedError extends Error {
   constructor(message) {
-    super();
+    super(message);
     this.message = message;
     this.status = err401;
   }

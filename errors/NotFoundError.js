@@ -2,7 +2,7 @@ const { err404 } = require('../utils/errorsCodes');
 
 class NotFoundError extends Error {
   constructor(message) {
-    super();
+    super(message);
     this.message = message;
     this.status = err404;
   }

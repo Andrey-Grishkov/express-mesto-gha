@@ -113,10 +113,11 @@ const updateUserAvatar = (req, res, next) => {
 };
 
 const getUserInfo = (req, res, next) => {
-  User.findById(req.user._id)
+  const { _id } = req.user;
+  User.findById(_id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError(`Пользователь с id: ${req.user._id} не найден`);
+        throw new NotFoundError(`Пользователь с id: ${_id} не найден`);
       }
       res.send({ message: user });
     })

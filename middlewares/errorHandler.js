@@ -6,4 +6,5 @@ module.exports = (err, req, res, next) => {
   }
   const error = new InternalError('Произошла ошибка на сервере');
   res.status(error.status).send({message: error.message});
+  next();
 };
