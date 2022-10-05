@@ -4,26 +4,15 @@ const jwt = require('jsonwebtoken');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const {
   ok200,
 } = require('../utils/errorsCodes');
 
-const login = (req, res, next) => {
-  const { email, password } = req.body;
-
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key',
-        { expiresIn: '7d' });
-      res.send({ token });
-    })
-    .catch(next);
-};
-
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((user) => { res.send({ data: user }); })
+    .then((user) => res.send(user))
     .catch(next);
 };
 
@@ -48,13 +37,20 @@ const createUser = (req, res, next) => {
   const { name, about, avatar, email, password, } = req.body;
   bcrypt.hash(req.body.password, 10)
     .then(hash => User.create({
-      email: req.body.email,
-      password: hash,
       name: req.body.name,
       about: req.body.about,
       avatar: req.body.avatar,
+      email: req.body.email,
+      password: hash,
     }))
-    .then((user) => res.send(user))
+    .then((user) => res.send({
+      _id: user._id,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+    }
+))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Некорректные данные'));
@@ -65,7 +61,8 @@ const createUser = (req, res, next) => {
         return;
       }
       next(err);
-    });
+    })
+.catch(next);
 };
 
 const updateUserProfile = (req, res, next) => {
@@ -122,6 +119,18 @@ const getUserInfo = (req, res, next) => {
       res.send({ message: user });
     })
     .catch(next);
+};
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'top-secret',
+        { expiresIn: '7d' });
+      res.send({ token });
+    })
+  next(new UnauthorizedError('Необходимо авторизироваться'));
 };
 
 module.exports = {

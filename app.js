@@ -1,11 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
+const NotFoundError = require('./errors/NotFoundError');
 const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
-const NotFoundError = require('./errors/NotFoundError');
+
 const validator = require('validator');
-const { errors } = require('celebrate');
+
 const {login, createUser} = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const cookieParser = require('cookie-parser');
@@ -28,11 +30,11 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use('/', userSign);
 
-// app.use(cookieParser());
+app.use(cookieParser());
 app.use(auth);
 
-app.use('/users', auth, routerUsers);
-app.use('/cards', auth, routerCards);
+app.use('/users', routerUsers);
+app.use('/cards', routerCards);
 
 app.all('/*', (req, res, next) => {
   next(new NotFoundError('Ошибка 404: Страница отсутствует'));
