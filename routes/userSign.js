@@ -5,6 +5,17 @@ const { login, createUser } = require('../controllers/users');
 const urlPattern = /^(https?:\/\/)(www\.)?([a-z1-9-]{2,}\.)+[a-z]{2,}\/?[a-z0-9-._~:/?#[\]@!$&'()*+,;=]*/i;
 
 router.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
+    }),
+  }),
+  login,
+);
+
+router.post(
   '/signup',
   celebrate({
     body: Joi.object().keys({
@@ -22,16 +33,5 @@ router.post(
 //   "email":"pog@gmail.com",
 //   "password":"Asol245"
 // }
-
-router.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().email().required(),
-      password: Joi.string().required(),
-    }),
-  }),
-  login,
-);
 
 module.exports = router;
