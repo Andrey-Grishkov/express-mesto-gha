@@ -29,14 +29,8 @@ app.listen(PORT, () => {
 
 app.use('/', userSign);
 
-
 app.use('/users', auth, routerUsers);
 app.use('/cards', auth, routerCards);
-// app.post('/users', auth, routerUsers);
-// app.post('/cards', auth, routerCards);
-// app.patch('/users', auth, routerUsers);
-// app.patch('/cards', auth, routerCards);
-
 
 app.all('/*', (req, res, next) => {
   next(new NotFoundError('Ошибка 404: Страница отсутствует'));

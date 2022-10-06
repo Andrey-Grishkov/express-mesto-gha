@@ -120,13 +120,15 @@ const updateUserAvatar = (req, res, next) => {
 
 const getUserInfo = (req, res, next) => {
   const { _id } = req.user;
+  console.log(15);
   User.findById(_id)
     .then((user) => {
-      res.send(user);
+      if (!user) {
+        throw new NotFoundError(`Пользователь с id: ${_id} не найден`);
+      }
+      res.status(ok200).send({ message: user });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports = {

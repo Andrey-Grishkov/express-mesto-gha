@@ -19,6 +19,7 @@ router.post(
 );
 
 // {
+//   "email":"pog@gmail.com",
 //   "password":"Asol245"
 // }
 
