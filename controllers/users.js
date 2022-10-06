@@ -20,7 +20,6 @@ const login = (req, res, next) => {
 };
 
 const getUsers = (req, res, next) => {
-  console.log(5);
   User.find({})
     .then((user) => {
       res.status(ok200).send({ data: user });
@@ -120,7 +119,6 @@ const updateUserAvatar = (req, res, next) => {
 
 const getUserInfo = (req, res, next) => {
   const { _id } = req.user;
-  console.log(15);
   User.findById(_id)
     .then((user) => {
       if (!user) {

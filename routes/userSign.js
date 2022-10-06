@@ -29,9 +29,4 @@ router.post(
   createUser,
 );
 
-// {
-//   "email":"pog@gmail.com",
-//   "password":"Asol245"
-// }
-
 module.exports = router;
