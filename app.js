@@ -13,6 +13,8 @@ const errorHandler = require('./middlewares/errorHandler');
 const { PORT = 3000 } = process.env;
 
 const app = express();
+
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -26,12 +28,15 @@ app.listen(PORT, () => {
 });
 
 app.use('/', userSign);
-
-app.use(cookieParser());
-app.use(auth);
+// app.use(auth);
 
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
+app.post('/users', auth, routerUsers);
+app.post('/cards', auth, routerCards);
+app.patch('/users', auth, routerUsers);
+app.patch('/cards', auth, routerCards);
+
 
 app.all('/*', (req, res, next) => {
   next(new NotFoundError('Ошибка 404: Страница отсутствует'));
