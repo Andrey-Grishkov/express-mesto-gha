@@ -1,14 +1,23 @@
-const User = require('../models/user');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const User = require('../models/user');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
-const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const {
   ok200,
 } = require('../utils/errorsCodes');
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'top-secret', { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch(next);
+};
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -27,31 +36,29 @@ const getUserById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Ошибка 400: Переданы некорректные данные'));
-        return
+        return;
       }
       next(err);
     });
 };
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password, } = req.body;
-  bcrypt.hash(req.body.password, 10)
-    .then(hash => User.create({
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) => (User.create({
       name: req.body.name,
       about: req.body.about,
       avatar: req.body.avatar,
       email: req.body.email,
       password: hash,
-    }))
+    })))
     .then((user) => res.send({
       _id: user._id,
       name: user.name,
       about: user.about,
       avatar: user.avatar,
       email: user.email,
-    }
-))
-    .catch((err) => {
+    })).catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Некорректные данные'));
         return;
@@ -62,7 +69,7 @@ const createUser = (req, res, next) => {
       }
       next(err);
     })
-.catch(next);
+    .catch(next);
 };
 
 const updateUserProfile = (req, res, next) => {
@@ -81,7 +88,7 @@ const updateUserProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Ошибка 400: Переданы некорректные данные'));
-        return
+        return;
       }
       next(err);
     });
@@ -103,7 +110,7 @@ const updateUserAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Ошибка 400: Переданы некорректные данные'));
-        return
+        return;
       }
       next(err);
     });
@@ -119,18 +126,6 @@ const getUserInfo = (req, res, next) => {
       res.send({ message: user });
     })
     .catch(next);
-};
-
-const login = (req, res, next) => {
-  const { email, password } = req.body;
-
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'top-secret',
-        { expiresIn: '7d' });
-      res.send({ token });
-    })
-  next(new UnauthorizedError('Необходимо авторизироваться'));
 };
 
 module.exports = {

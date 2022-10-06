@@ -1,6 +1,6 @@
 const { celebrate, Joi } = require('celebrate');
 const routerUsers = require('express').Router();
-const validator = require('validator');
+
 const urlPattern = /^(https?:\/\/)(www\.)?([a-z1-9-]{2,}\.)+[a-z]{2,}\/?[a-z0-9-._~:/?#[\]@!$&'()*+,;=]*/i;
 
 const {
