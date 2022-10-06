@@ -20,6 +20,7 @@ const login = (req, res, next) => {
 };
 
 const getUsers = (req, res, next) => {
+  console.log(5);
   User.find({})
     .then((user) => res.send(user))
     .catch(next);
@@ -123,7 +124,7 @@ const getUserInfo = (req, res, next) => {
       if (!user) {
         throw new NotFoundError(`Пользователь с id: ${_id} не найден`);
       }
-      res.send({ message: user });
+      res.status(ok200).send({ message: user });
     })
     .catch(next);
 };
