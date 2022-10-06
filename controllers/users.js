@@ -122,12 +122,11 @@ const getUserInfo = (req, res, next) => {
   const { _id } = req.user;
   User.findById(_id)
     .then((user) => {
-      if (!user) {
-        throw new NotFoundError(`Пользователь с id: ${_id} не найден`);
-      }
-      res.status(ok200).send({ message: user });
+      res.send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      next(err);
+    });
 };
 
 module.exports = {

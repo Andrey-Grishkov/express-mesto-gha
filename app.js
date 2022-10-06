@@ -28,7 +28,7 @@ app.listen(PORT, () => {
 });
 
 app.use('/', userSign);
-// app.use(auth);
+
 
 app.use('/users', auth, routerUsers);
 app.use('/cards', auth, routerCards);
