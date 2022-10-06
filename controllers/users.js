@@ -22,8 +22,9 @@ const login = (req, res, next) => {
 const getUsers = (req, res, next) => {
   console.log(5);
   User.find({})
-    .then((user) => res.send(user))
-    .catch(next);
+    .then((user) => {
+      res.status(ok200).send({ data: user });
+    }).catch(next);
 };
 
 const getUserById = (req, res, next) => {
