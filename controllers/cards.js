@@ -28,24 +28,17 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCardById = (req, res, next) => {
-  const ownerId = req.user._id;
-  Card.findByIdAndDelete(req.params.cardId)
+  const { id } = req.params;
+  Card.findById(id)
+    .orFail(() => new NotFoundError('Ошибка 404: Карточка не найдена'))
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Ошибка 404: Карточка не найдена');
+      if (!card.owner.equals(req.user._id)) {
+        return next(new ForbiddenError('Ошибка 403: Карточка создана другим пользователем'));
       }
-      if (card.owner.toString() !== ownerId) {
-        throw new ForbiddenError('Ошибка 403: Карточка создана другим пользователем');
-      }
-      return res.status(ok200).send(card);
+      return card.remove()
+        .then(() => res.send({ message: 'Карточка удалена' }));
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Ошибка 400: Некорректный id карточки'));
-        return;
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 const likeCard = (req, res, next) => {

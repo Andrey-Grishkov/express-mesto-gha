@@ -3,10 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const cookieParser = require('cookie-parser');
-const NotFoundError = require('./errors/NotFoundError');
-const routerUsers = require('./routes/users');
-const routerCards = require('./routes/cards');
-const auth = require('./middlewares/auth');
+const router = require('./routes/index');
 const userSign = require('./routes/userSign');
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -29,12 +26,7 @@ app.listen(PORT, () => {
 
 app.use('/', userSign);
 
-app.use('/users', auth, routerUsers);
-app.use('/cards', auth, routerCards);
-
-app.all('/*', (req, res, next) => {
-  next(new NotFoundError('Ошибка 404: Страница отсутствует'));
-});
+app.use(router);
 
 app.use(errors());
 

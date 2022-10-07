@@ -5,10 +5,6 @@ const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 
-const {
-  ok200,
-} = require('../utils/errorsCodes');
-
 const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
@@ -22,7 +18,7 @@ const login = (req, res, next) => {
 const getUsers = (req, res, next) => {
   User.find({})
     .then((user) => {
-      res.status(ok200).send({ data: user });
+      res.send({ data: user });
     }).catch(next);
 };
 
@@ -32,7 +28,7 @@ const getUserById = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Ошибка 404: Пользователь не найден');
       }
-      return res.status(ok200).send({ data: user });
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -84,7 +80,7 @@ const updateUserProfile = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Ошибка 404: Пользователь не найден');
       }
-      return res.status(ok200).send({ data: user });
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -106,7 +102,7 @@ const updateUserAvatar = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Ошибка 404: Пользователь не найден');
       }
-      return res.status(ok200).send({ data: user });
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -124,7 +120,7 @@ const getUserInfo = (req, res, next) => {
       if (!user) {
         throw new NotFoundError(`Пользователь с id: ${_id} не найден`);
       }
-      res.status(ok200).send({ message: user });
+      res.send({ message: user });
     })
     .catch(next);
 };
