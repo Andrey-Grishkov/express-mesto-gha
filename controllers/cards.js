@@ -34,16 +34,8 @@ const deleteCardById = (req, res, next) => {
       if (!card.owner.equals(req.user._id)) {
         return next(new ForbiddenError('Ошибка 403: Карточка создана другим пользователем'));
       }
-      Card.findByIdAndDelete(req.params.cardId)
-        .then((foundCard) => {
-          if (!foundCard) {
-            throw new ForbiddenError();
-          }
-          res.send(foundCard);
-        })
-        .catch((err) => {
-          next(err);
-        });
+      return card.remove()
+        .then(()=> res.send('Карточка удалена'));
     })
     .catch(next);
 };
