@@ -31,7 +31,7 @@ const deleteCardById = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        throw NotFoundError('Ошибка 404: Карточка не найдена');
+        return next (new NotFoundError('Ошибка 404: Карточка не найдена'));
       }
       if (!card.owner.equals(req.user._id)) {
         return next(new ForbiddenError('Ошибка 403: Карточка создана другим пользователем'));
