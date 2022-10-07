@@ -30,14 +30,22 @@ const createCard = (req, res, next) => {
 const deleteCardById = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
-  if (!card) {new NotFoundError('Ошибка 404: Карточка не найдена')}
+      if (!card) {
+        throw NotFoundError('Ошибка 404: Карточка не найдена');
+      }
       if (!card.owner.equals(req.user._id)) {
         return next(new ForbiddenError('Ошибка 403: Карточка создана другим пользователем'));
       }
       return card.remove()
-        .then(()=> res.send('Карточка удалена'));
+        .then(() => res.send({ message: 'Карточка удалена' }));
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Ошибка 400: Некорректный id карточки'));
+        return;
+      }
+      next(err);
+    });
 };
 
 const likeCard = (req, res, next) => {
